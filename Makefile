@@ -1,6 +1,6 @@
-NODE = node
+MOCHA = node_modules/mocha/bin/mocha
 
 test:
-	@$(NODE) tests/core.js
+	@$(MOCHA) --ignore-leaks tests/core.js
 
 .PHONY: test
