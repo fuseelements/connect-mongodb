@@ -1,6 +1,4 @@
-var testosterone = require('testosterone')({title: 'models/advertiser'})
-  , assert = testosterone.assert
-  , gently = global.GENTLY = new (require('gently'))
+var assert = require('assert')
   , Db = require('mongodb').Db
   , Server = require('mongodb').Server
   , server_config = new Server('localhost', 27017, {auto_reconnect: true, native_parser: true})
@@ -8,20 +6,22 @@ var testosterone = require('testosterone')({title: 'models/advertiser'})
   , connect_mongodb = require('..')
   , db = new Db('test', server_config, {});
 
-testosterone
+db.open(function () {
+  store = new connect_mongodb({db: db})
 
-  .add('Should callback an error if no db given', function (done) {
-    var funk = require('funk')('parallel');
+  store.set('123', {cookie: {maxAge: 3000}, name: 'nathan'}, function (err, ok) {
+    assert.ok(!err, 'error on set');
 
-    db.open(function () {
-      connect_mongodb(null, funk.add(assert.ok));
-      connect_mongodb({db: null}, funk.add(assert.ok));
-      connect_mongodb({db: db, setInterval: -1}, funk.add(assert.ifError));
-      connect_mongodb({server_config: server_config, setInterval: -1}, funk.add(assert.ifError));
-      connect_mongodb({url: url, setInterval: -1}, funk.add(assert.ifError));
-      funk.run(done);
+    store.get('123', function (err, data) {
+      assert.ok(!err, 'error on get');
+      assert.deepEqual({ cookie: { maxAge: 3000 }, name: 'nathan' }, data);
+      store.destroy('123', function(){
+        store.get('123', function (err, data) {
+          assert.ok(!data, 'should not have this record')
+          console.log('Done!')
+          db.close()
+        });
+      });
     });
-  })
-
-  .run();
-
+  });
+});
