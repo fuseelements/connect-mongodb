@@ -17,7 +17,7 @@ describe('mongodb connect', function () {
           assert.equal(data.length, 1)
           assert.equal(data[0]._id, 123)
           assert.equal(data[0]._id, 123)
-          assert.deepEqual(data[0].session, { cookie: { maxAge: 3000 }, name: 'Sidney Crosby' });
+          assert.deepEqual(data[0].session, JSON.stringify({ cookie: { maxAge: 3000 }, name: 'Sidney Crosby' }));
           done();
         });
       });
